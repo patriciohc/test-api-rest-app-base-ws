@@ -1,7 +1,10 @@
 const axios = require('axios');
 const logger = require('./logger');
 const accountApi = require('./account.controller.test');
+const categoriaUnidadApi = require('./catetoria-unidad.controller.test');
 const URL_API = require('./constant').URL_API;
+const querystring = require('querystring');
+
 
 var headers = {
     Authorization: undefined
@@ -68,7 +71,67 @@ async function addAllProductsToUnidad() {
     }
 }
 
+
+/**
+ * obtiene lista de unidades, en base a posicion y elementos de filtrado
+ * PUT /unidad/public
+ */
+async function getListUnidadesPublicSearch() {
+    const testUrl = URL_API + '/unidad/public';
+
+    // let categorias = await categoriaUnidadApi.getListCategoriaUnidad();
+
+    try {
+        let urlParams = querystring.stringify({
+            lat:19.4568192,
+            lng:-99.2043008,
+            // categoriaId: categorias[0].id
+        }); 
+        let urlWithParams = testUrl + '?' + urlParams;
+        logger.info('TESTING GET '+ urlWithParams);
+        let response = await axios.get(urlWithParams);
+        if (Array.isArray(response.data)) {
+            logger.success('success');
+            return response.data;
+        } else {
+            logger.warn('failed');
+            throw('Respues no esperada');
+        }
+    } catch (error) {
+        logger.error('failed');
+        throw error;
+    }
+}
+
+/**
+ * obtiene lista de unidades, en base a posicion y elementos de filtrado
+ * PUT /unidad/public
+ */
+async function getListUnidadesPublicAll() {
+    const testUrl = URL_API + '/unidad/public';
+    try {
+        logger.info('TESTING GET '+ testUrl);
+        const response = await axios.get(testUrl);
+        if (Array.isArray(response.data)) {
+            logger.success('success');
+            return response.data;
+        } else {
+            logger.warn('failed');
+            throw('Respues no esperada');
+        }
+    } catch (error) {
+        if (error.response.status === 400) {
+            logger.success('success')
+        } else {
+            logger.error('failed');
+        }
+    }
+
+}
+
 module.exports = {
     getListUnidadesByClient,
-    addAllProductsToUnidad
+    addAllProductsToUnidad,
+    getListUnidadesPublicSearch,
+    getListUnidadesPublicAll
 }

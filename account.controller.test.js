@@ -2,6 +2,17 @@ const axios = require('axios');
 const logger = require('./logger');
 const URL_API = require('./constant').URL_API;
 const CREDENTIALS = require('./constant').CREDENTIALS;
+const firebase = require('firebase');
+
+var app = firebase.initializeApp({
+    apiKey: "AIzaSyD5dt4bZipYnSUboDpzTvr84AoNiUWJjFg",
+    authDomain: "logposeapp.firebaseapp.com",
+    databaseURL: "https://logposeapp.firebaseio.com",
+    projectId: "logposeapp",
+    storageBucket: "logposeapp.appspot.com",
+    messagingSenderId: "251307182807",
+    appId: "1:251307182807:web:5e28e6e95957d908c27e92"
+});
 
 /**
  * GET /account/tokenrefresh 
@@ -30,12 +41,15 @@ async function getTokenrefresh() {
 /**
  * GET /account 
  */
-async function getAccount() {
-    let testUrl = URL_API + '/account?tipo=socio'
+async function getAccount(tipo='socio') {
+    let testUrl = URL_API + '/account?tipo=' + tipo
     try {
         let token = await getTokenrefresh();
+        await app.auth().signInWithCustomToken(token);
+        const idToken = await app.auth().currentUser.getIdToken(true)
+
         const headers = {
-            Authorization: 'Bearer  ' + token
+            Authorization: 'Bearer ' + idToken
         }
         logger.info('TESTING GET ' + testUrl);
         let response = await axios.get(testUrl, {headers})
